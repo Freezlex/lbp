@@ -21,7 +21,7 @@ vector<int> getImageLBP(Mat image);
 void writeDataToFile(vector<int> data, bool type);
 
 int main(int argc, char *argv[]) {
-    Mat image = imread("/home/freezlex/Documents/Projects/M_405/image-processing/lbp-parking-lot/.data/FullParkingSpots/occupied91.jpg",IMREAD_GRAYSCALE);
+    Mat image = imread("",IMREAD_GRAYSCALE);
 
     vector<int> lbp = getImageLBP(image);
     auto score = accumulate(lbp.begin(), lbp.end(), 0);
