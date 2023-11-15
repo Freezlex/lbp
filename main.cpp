@@ -31,7 +31,7 @@ list<pair<int, int>> matrix = {
     {1, 1}}; // 128
 
 // Class def
-double compareImageData(FileOutputData imageData, vector<FileOutputData> dataset);
+double compareImageData(FileOutputData img_src, FileOutputData img_dts);
 vector<FileOutputData> getAllImages(const string& dirPath, DataType dataType);
 array<int, 256> getImageLBP(cv::Mat image);
 void writeDataToFile(vector<int> data, bool type);
@@ -39,45 +39,50 @@ FileOutputData getImageOutputData(string imgPath, DataType dataType);
 
 int main(int argc, char *argv[]) {
 
-    vector<FileOutputData> dataset = getAllImages(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\EmptyParkingSpots\*.jpg)", DataType::empty);
-    dataset.append_range(getAllImages(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\FullParkingSpots\*.jpg)", DataType::full));
+    vector<FileOutputData> dataset = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/EmptyParkingSpots/*.jpg)", DataType::empty);
+    auto p = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/FullParkingSpots/*.jpg)", DataType::full);
+    for(const auto & i : p) {
+        dataset.push_back(i);
+    }
 
-    vector<FileOutputData> testDataset = getAllImages(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\Test\EmptyParkingSpots\*.jpg)", DataType::empty);
-    testDataset.append_range(getAllImages(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\Test\FullParkingSpots\*.jpg)", DataType::full));
+    vector<FileOutputData> testDataset = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/Test/EmptyParkingSpots/*.jpg)", DataType::empty);
+    p = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/Test/FullParkingSpots/*.jpg)", DataType::full);
+    for(const auto & i : p) {
+        testDataset.push_back(i);
+    }
 
-    map<bool, int> test {
-    {false, 0},
-    {true, 0}};
-    int testDstLength = testDataset.size();
-    for(int i=0;i < testDstLength; i++) {
-        DataType determined = DataType::undefined;
-        double dst = 999999;
-        double clctDst = compareImageData(testDataset[i], dataset);
-        if(dst == 999999) {
-            dst = clctDst;
-            determined = testDataset[i].dataType;
-        } else {
-            if(dst > clctDst) {
-                dst = clctDst;
-                determined = testDataset[i].dataType;
+    int error_ctn = 0;
+    for(FileOutputData src_img : testDataset) {
+        auto distance = DBL_MAX;
+        DataType predicted = DataType::undefined;
+        string filename;
+        for(auto dst_image : dataset) {
+            double computed = compareImageData(src_img, dst_image);
+            if(computed < distance) {
+                distance = computed;
+                predicted = dst_image.dataType;
+                filename = dst_image.filename;
             }
         }
-        test[(testDataset[i].dataType == determined)] += 1;
-        std::cout << (testDataset[i].dataType == determined) << endl;
+
+        if(predicted != src_img.dataType) {
+            string error_debug_msg = std::format("File predicted to {} and was supposed to be {}.\n   Source image : {}\n   Dataset image : {}", (predicted == DataType::empty ? "empty" : "full"), (src_img.dataType == DataType::empty ? "empty" : "full"), src_img.filename, filename);
+            std::cout << error_debug_msg << endl;
+            error_ctn+=1;
+        }
     }
+    double percent = ((double)100/testDataset.size())*error_ctn;
+    string result_data = std::format("Process finished with {} errors on {} images. Sucess rate {}%", error_ctn, testDataset.size(), ((double)100-percent));
+    std::cout << result_data << endl;
     return 0;
 }
 
-double compareImageData(FileOutputData imageData, vector<FileOutputData> dataset) {
+double compareImageData(FileOutputData img_src, FileOutputData img_dts) {
     double sum = 0;
-    int dtLength = dataset.size();
-    for(int i=0; i< dtLength;i++) {
-        sum = 0;
-        for(int n=0;n<256;n++) {
-            sum += (imageData.data[n] - dataset[i].data[n]);
-        }
-        sum = sqrt(sum);
+    for(int i=0; i < img_dts.data.size();i++) {
+        sum += (img_dts.data[i] - img_src.data[i])*(img_dts.data[i] - img_src.data[i]);
     }
+    sum = sqrt(sum);
     return sum;
 }
 
