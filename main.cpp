@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 
+#include "Objetcs/PixelSet/PixelSet.h"
+
 using namespace std;
 
 
@@ -38,7 +40,12 @@ void writeDataToFile(vector<int> data, bool type);
 FileOutputData getImageOutputData(string imgPath, DataType dataType);
 
 int main(int argc, char *argv[]) {
+    const cv::Mat image = cv::imread(R"(/home/freezlex/Development/m-5/lbp/.data/EmptyParkingSpots/empty409.jpg)", cv::IMREAD_GRAYSCALE);
+    const auto test = new pSet::PixelSet(image,2);
+    return 0;
+}
 
+void temp() {
     vector<FileOutputData> dataset = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/EmptyParkingSpots/*.jpg)", DataType::empty);
     auto p = getAllImages(R"(/home/freezlex/development/m-5/lbp/.data/FullParkingSpots/*.jpg)", DataType::full);
     for(const auto & i : p) {
@@ -74,7 +81,6 @@ int main(int argc, char *argv[]) {
     double percent = ((double)100/testDataset.size())*error_ctn;
     string result_data = std::format("Process finished with {} errors on {} images. Sucess rate {}%", error_ctn, testDataset.size(), ((double)100-percent));
     std::cout << result_data << endl;
-    return 0;
 }
 
 double compareImageData(FileOutputData img_src, FileOutputData img_dts) {
@@ -97,8 +103,6 @@ vector<FileOutputData> getAllImages(const string& dirPath, const DataType dataTy
 
     return images;
 }
-
-
 
 FileOutputData getImageOutputData(const string imgPath, const DataType dataType) {
     const cv::Mat image = cv::imread(imgPath,cv::IMREAD_GRAYSCALE);
