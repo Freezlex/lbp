@@ -21,6 +21,14 @@ namespace pSet {
         {0, 1}, // 64
         {1, 1}}; // 128
 
+    enum DistanceType {
+        Euclidian,
+        Chisqrt,
+        Manathan,
+        SSD
+
+    };
+
     class PixelSet {
     private:
         vector<array<int, 256>> calculatedLbp;
