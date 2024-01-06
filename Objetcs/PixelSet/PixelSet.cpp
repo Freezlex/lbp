@@ -90,7 +90,7 @@ vector<int> PixelSet::computeLbp(vector<vector<int>> data) {
     return lbp;
 }
 
-bool PixelSet::inferType(const vector<PixelSet*>& dataset, const DistanceType& processType) {
+DataType* PixelSet::inferType(const vector<PixelSet*>& dataset, const DistanceType& processType) {
     auto distance = DBL_MAX;
     for (PixelSet* pixelSet : dataset) {
         if(const double computed = calcDistance(pixelSet, processType); computed < distance) {
@@ -98,7 +98,7 @@ bool PixelSet::inferType(const vector<PixelSet*>& dataset, const DistanceType& p
             this->inferedDataType = pixelSet->realDataType;
         }
     }
-    return this->inferedDataType == this->getRealDataType();
+    return this->inferedDataType;
 }
 
 double PixelSet::calcDistance(const PixelSet* compareData, DistanceType type) {

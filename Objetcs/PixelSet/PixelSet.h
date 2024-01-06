@@ -66,7 +66,8 @@ namespace pSet {
             processImageToLbp(std::move(image), pass_amnt);
         }
 
-        bool inferType(const vector<PixelSet*>& dataset, const DistanceType& processType);
+        DataType* inferType(const vector<PixelSet*>& dataset, const DistanceType& processType);
+
         string getRealTypeLabel() {
             return this->realDataType->label;
         }

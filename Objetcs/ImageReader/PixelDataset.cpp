@@ -6,6 +6,8 @@
 
 #include <utility>
 
+#include "../LbpResult/LbpResult.h"
+
 bool PixelDataset::addDirToDataset(const string& dir, pSet::DataType* dataType, cv::ImreadModes imreadMode) {
     vector<cv::String> fn;
     cv::glob(dir, fn, false);
@@ -20,9 +22,10 @@ bool PixelDataset::addDirToDataset(const string& dir, pSet::DataType* dataType, 
 }
 
 void PixelDataset::compareDataset(PixelDataset* dataset, pSet::DistanceType type) {
+    LbpResult results = LbpResult();
     for(const auto pixelSet : this->pSetDataset) {
-        if(!pixelSet->inferType(dataset->pSetDataset, type))
-            std::cout << format("-- OUTPUT : Determinated to {} | is {}", pixelSet->getInferedTypeLabel(), pixelSet->getRealTypeLabel()) << endl;
+        results.addResult(pixelSet->getRealDataType(), pixelSet->inferType(dataset->pSetDataset, type));
     }
+    results.getStats();
 }
 
