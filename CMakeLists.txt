@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.26)
 project(lbp_parking_lot)
 
 set(CMAKE_CXX_STANDARD 23)
-# set(ENV{OPENCV_DIR} "C:\\tools\\opencv\\build")
+IF (WIN32)
+    set(ENV{OPENCV_DIR} "C:\\tools\\opencv\\build")
+ENDIF()
+
 
 find_package(OpenCV REQUIRED)
 

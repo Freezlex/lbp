@@ -23,6 +23,7 @@ namespace pSet {
 
     enum DistanceType {
         Euclidian,
+        Bhattacharya,
         Chisqrt,
         Manathan,
         SSD
@@ -58,6 +59,12 @@ namespace pSet {
         vector<int> dataArrayToLbp(const vector<vector<int>>& data, int pass_amnt);
         vector<int> computeLbp(vector<vector<int>> data);
         double calcDistance(const PixelSet* compareData, DistanceType type);
+
+        double eucDist(const PixelSet* compareData);
+        double bhatDist(const PixelSet* compareData);
+        double chisqDist(const PixelSet* compareData);
+        double manDist(const PixelSet* compareData);
+        double ssdDist(const PixelSet* compareData);
 
 
     public:

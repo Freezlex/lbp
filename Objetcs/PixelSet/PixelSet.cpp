@@ -22,7 +22,7 @@ void PixelSet::processImageToLbp(cv::Mat image, int pass_amnt) {
 vector<vector<vector<int>>> PixelSet::extractImageCube(cv::Mat image) {
     // Cube must be [I][X][Y] = val
     vector<vector<vector<int>>> cube =
-        vector(image.channels(),vector(image.cols,vector(image.rows,0)));
+        vector(image.channels(),vector(image.rows,vector(image.cols,0)));
 
     for(int i = 0;i<image.channels();i++) {
         for(int x = 0; x<image.rows;x++) {
@@ -106,16 +106,75 @@ double PixelSet::calcDistance(const PixelSet* compareData, DistanceType type) {
         throw std::invalid_argument("Data and dataset data does not complete requirement. Not same size.");
     switch (type) {
         case Euclidian: {
-            double sum = 0;
-            for(int o=0;o<this->calculatedLbp.size();o++) {
-                auto step = 0;
-                for(int i=0;i<this->calculatedLbp[o].size();i++) {
-                    step += (calculatedLbp[o][i] - compareData->calculatedLbp[o][i])*(calculatedLbp[o][i] - compareData->calculatedLbp[o][i]);
-                }
-                sum += sqrt(step);
-            }
-            return sum;
+            return eucDist(compareData);
+        }
+        case Bhattacharya: {
+            return bhatDist(compareData);
+        }
+        case Chisqrt: {
+            return chisqDist(compareData);
+        }
+        case Manathan: {
+            return manDist(compareData);
+        }
+        case SSD: {
+            return ssdDist(compareData);
         }
         default: {return DBL_MAX;}
     }
+}
+
+double PixelSet::eucDist(const PixelSet* compareData) {
+    double sum = 0;
+    for(int o=0;o<this->calculatedLbp.size();o++) {
+        double step = 0;
+        for(int i=0;i<this->calculatedLbp[o].size();i++) {
+            step += pow(calculatedLbp[o][i] - compareData->calculatedLbp[o][i], 2);
+        }
+        sum += sqrt(step);
+    }
+    return sum;
+}
+
+double PixelSet::bhatDist(const PixelSet* compareData) {
+    double sum = 0;
+    for(int o=0;o<this->calculatedLbp.size();o++) {
+        double step = 0;
+        for(int i=0;i<this->calculatedLbp[o].size();i++) {
+            step += sqrt(calculatedLbp[o][i] * compareData->calculatedLbp[o][i]);
+        }
+        sum += -log(step);
+    }
+    return sum;
+}
+
+double PixelSet::chisqDist(const PixelSet* compareData) {
+    double sum = 0;
+    for(int o=0;o<this->calculatedLbp.size();o++) {
+        for(int i=0;i<this->calculatedLbp[o].size();i++) {
+            if(calculatedLbp[o][i] != 0)
+                sum += ((calculatedLbp[o][i] - compareData->calculatedLbp[o][i]) * (calculatedLbp[o][i] - compareData->calculatedLbp[o][i])) / calculatedLbp[o][i];
+        }
+    }
+    return sum;
+}
+
+double PixelSet::manDist(const PixelSet* compareData) {
+    double sum = 0;
+    for(int o=0;o<this->calculatedLbp.size();o++) {
+        for(int i=0;i<this->calculatedLbp[o].size();i++) {
+            sum += abs(calculatedLbp[o][i] - compareData->calculatedLbp[o][i]);
+        }
+    }
+    return sum;
+}
+
+double PixelSet::ssdDist(const PixelSet* compareData) {
+    double sum = 0;
+    for(int o=0;o<this->calculatedLbp.size();o++) {
+        for(int i=0;i<this->calculatedLbp[o].size();i++) {
+            sum += pow(calculatedLbp[o][i] - compareData->calculatedLbp[o][i], 2);
+        }
+    }
+    return sum;
 }

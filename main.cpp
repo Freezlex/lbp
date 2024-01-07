@@ -13,14 +13,25 @@ int main(int argc, char *argv[]) {
     const auto emptyLot = new pSet::DataType("Empty Parking Lot");
     const auto fullLot = new pSet::DataType("Full Parking Lot");
 
-    const auto dataset = new PixelDataset(1);
-    dataset->addDirToDataset(R"(/home/freezlex/Development/m-5/lbp/.data/EmptyParkingSpots/*.jpg)", emptyLot, cv::IMREAD_GRAYSCALE);
-    dataset->addDirToDataset(R"(/home/freezlex/Development/m-5/lbp/.data/FullParkingSpots/*.jpg)", fullLot, cv::IMREAD_GRAYSCALE);
+    const int pass = 3;
+    const auto imreadMode = cv::IMREAD_COLOR;
 
-    const auto test_dataset = new PixelDataset(1);
-    test_dataset->addDirToDataset(R"(/home/freezlex/Development/m-5/lbp/.data/Test/EmptyParkingSpots/*.jpg)", emptyLot, cv::IMREAD_GRAYSCALE);
-    test_dataset->addDirToDataset(R"(/home/freezlex/Development/m-5/lbp/.data/Test/FullParkingSpots/*.jpg)", fullLot, cv::IMREAD_GRAYSCALE);
+    std::cout << "OPT PASS : " << pass << endl;
+
+    const auto dataset = new PixelDataset(pass);
+    dataset->addDirToDataset(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\EmptyParkingSpots\*.jpg)", emptyLot, imreadMode);
+    dataset->addDirToDataset(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\FullParkingSpots\*.jpg)", fullLot, imreadMode);
+
+    const auto test_dataset = new PixelDataset(pass);
+    test_dataset->addDirToDataset(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\Test\EmptyParkingSpots\*.jpg)", emptyLot, imreadMode);
+    test_dataset->addDirToDataset(R"(C:\Users\Freezlex\Documents\Work\Bin\UHA\M_405\lbp\.data\Test\FullParkingSpots\*.jpg)", fullLot, imreadMode);
 
     test_dataset->compareDataset(dataset,pSet::Euclidian);
+    test_dataset->compareDataset(dataset,pSet::Bhattacharya);
+    test_dataset->compareDataset(dataset,pSet::Chisqrt);
+    test_dataset->compareDataset(dataset,pSet::Manathan);
+    test_dataset->compareDataset(dataset,pSet::SSD);
+
+    std::cin.get();
     return 0;
 }
