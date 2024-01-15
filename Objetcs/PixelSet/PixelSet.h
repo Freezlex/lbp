@@ -21,18 +21,70 @@ namespace pSet {
         {0, 1}, // 64
         {1, 1}}; // 128
 
+    enum DistanceType {
+        Euclidian,
+        Bhattacharya,
+        Chisqrt,
+        Manathan,
+        SSD
+
+    };
+
+    class DataType {
+
+    public:
+        string label;
+
+    public:
+        explicit DataType(const string& label) {
+            this->label = label;
+        }
+
+        [[nodiscard]] string label1() const {
+            return label;
+        }
+    };
+
     class PixelSet {
     private:
-        vector<array<int, 256>> calculatedLbp;
+        //var
+        vector<vector<int>> calculatedLbp;
+        DataType* realDataType;
+        DataType* inferedDataType{};
+
+        //fn
         void processImageToLbp(cv::Mat image, int pass_amnt);
         vector<vector<vector<int>>> extractImageCube(cv::Mat image);
-        vector<array<int, 256>> dataCubeToLbpArray(const vector<vector<vector<int>>>& cube);
-        array<int, 256> dataArrayToLbp(const vector<vector<int>>& data);
+        vector<vector<int>> dataCubeToLbpArray(const vector<vector<vector<int>>>& cube, int pass_amnt);
+        vector<int> dataArrayToLbp(const vector<vector<int>>& data, int pass_amnt);
+        vector<int> computeLbp(vector<vector<int>> data);
+        double calcDistance(const PixelSet* compareData, DistanceType type);
+
+        double eucDist(const PixelSet* compareData);
+        double bhatDist(const PixelSet* compareData);
+        double chisqDist(const PixelSet* compareData);
+        double manDist(const PixelSet* compareData);
+        double ssdDist(const PixelSet* compareData);
 
 
     public:
-        PixelSet(cv::Mat image, int pass_amnt) {
+        PixelSet(cv::Mat image, DataType* dataType, int pass_amnt) {
+            this->realDataType = dataType;
             processImageToLbp(std::move(image), pass_amnt);
+        }
+
+        DataType* inferType(const vector<PixelSet*>& dataset, const DistanceType& processType);
+
+        string getRealTypeLabel() {
+            return this->realDataType->label;
+        }
+
+        string getInferedTypeLabel() {
+            return this->inferedDataType == nullptr ? "UNDEFINED" : this->inferedDataType->label ;
+        }
+
+        DataType* getRealDataType() {
+            return this->realDataType;
         }
     };
 }
